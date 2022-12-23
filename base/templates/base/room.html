@@ -12,7 +12,7 @@
     <div class="room-container">
             <div>
             <h1>{{room.name}}</h1>
-            <p> {{room.description}} </p>
+            <p> {{room.description | safe}} </p>
 
             <div class="comment-wrapper">
                 <h3>Conversation</h3>
