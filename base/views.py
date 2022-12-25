@@ -6,8 +6,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from .models import Room, Topic, Message
-from .forms import RoomForm, MessageForm
+from .models import Room, Topic, Message, Region
+from .forms import RoomForm, MessageForm, RegionForm
 
 # Create your views here.
 
@@ -102,34 +102,38 @@ def userProfile(request, pk):
 
 @login_required(login_url='login')
 def createRoom(request):
-    form = RoomForm()
+    form_room = RoomForm()
+    form_region = RegionForm()
 
     if request.method == 'POST':
-        form = RoomForm(request.POST)
-        if form.is_valid():
-            room = form.save(commit=False)
+        form_room = RoomForm(request.POST)
+        form_region = RegionForm(request.POST)
+        if form_room.is_valid() and form_region.is_valid():
+            room = form_room.save(commit=False)
+            region = form_region.save(commit=False)
             room.host = request.user
             room.save()
+            region.save()
             return redirect ('home')
     
-    context={'form':form}
+    context={'form_room':form_room, 'form_region':form_region}
     return render(request, 'base/room_form.html', context)
 
 @login_required(login_url='login')
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk)
-    form = RoomForm(instance=room)
+    form_room = RoomForm(instance=room)
     
     if request.user != room.host:
         return HttpResponse("This is not yours to edit!")
 
     if request.method == 'POST':
-        form = RoomForm(request.POST, instance=room)
-        if form.is_valid():
-            form.save()
+        form_room = RoomForm(request.POST, instance=room)
+        if form_room.is_valid():
+            form_room.save()
             return redirect('home')
 
-    context = {'form':form}
+    context = {'form_room':form_room}
     return render(request, 'base/room_form.html', context)
 
 @login_required(login_url='login')
